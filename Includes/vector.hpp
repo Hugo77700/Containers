@@ -6,7 +6,7 @@
 /*   By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:17:35 by hcherpre          #+#    #+#             */
-/*   Updated: 2022/12/21 18:17:39 by hcherpre         ###   ########.fr       */
+/*   Updated: 2022/12/22 17:59:19 by hcherpre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,11 +92,6 @@ template <typename T, typename Allocator = std::allocator<T>>
 				return (*this);
 			}
 			
-			T& operator[](size_t pos)
-			{
-				return(*(_begin + pos));
-			}
-		
 		private :
 		
 			_destroy_vector()
@@ -106,6 +101,138 @@ template <typename T, typename Allocator = std::allocator<T>>
 				for(size_t i = 0; i < _size; i++)
 					_alloc.destroy(_begin + i);
 				_alloc.deallocate(begin, _capacity);
+			}
+
+		public :
+
+/*******************ITERATORS**************************
+******************************************************/	
+		
+			iterator begin()
+			{
+				return(_begin);
+			}
+			
+			const_iterator begin() const
+			{
+				return(const_iterator(_begin));
+			}
+
+			iterator	end()
+			{
+				return(_begin + _size);
+			}
+
+			iterator	end() const
+			{
+				return(const_iterator(_begin + _size));
+			}
+
+			reverse_iterator rbegin()
+			{
+				return(reverse_iterator(_begin + _size));
+			}
+			
+			const_reverse_iterator rbegin() const
+			{
+				return(const_reverse_iterator(_begin + _size));
+			}
+			
+			reverse_iterator rend()
+			{
+				return(reverse_iterator(_begin));
+			}
+			
+			const_reverse_iterator rend() const
+			{
+				return(const_reverse_iterator(_begin));
+			}
+
+/*******************CAPACITY**************************
+*****************************************************/	
+
+			size_type	capacity() const
+			{
+				return (_capacity);
+			}
+			
+			bool	empty() const
+			{
+				if (!_size)
+					return (1);
+				return (0);
+			}
+
+			size_type size() const
+			{
+				return (_size);
+			}
+
+			size_type max_size() const
+			{
+				return (_alloc.max_size());
+			}
+			
+			void resize(size_type n, value_type val = value_type())
+			{
+				
+			}
+			
+			
+/*******************ELEMENT ACCESS**************************
+***********************************************************/	
+			
+			T& operator[](size_t pos)
+			{
+				return(*(_begin + pos));
+			}
+			
+			T&	at(size_type n)
+			{
+				if (n >= _size)
+					throw std::exception::out_of_range();
+				return(*(_begin + pos));
+			}
+
+			T&	front()
+			{
+				return(*(_begin));
+			}
+
+			T&	back()
+			{
+				return(*(_begin + (_size - 1)));
+			}
+			
+/*******************MODIFIERS**************************
+******************************************************/	
+
+			void	clear()
+			{
+				if (!_size)
+					return ;
+				for(size_t i = 0; i < _size; i++)
+					_alloc.destroy(_begin + i);
+			}
+
+			iterator erase(iterator position)
+			{
+				iterator pos_start = position;
+				for(; position + 1 != end(); position++)
+				{
+					_alloc.destroy(position);
+					_alloc.construct(position, *(position + 1));
+				}
+				_alloc.destroy(position);
+				_size -= 1;
+				return (pos_start);
+			}
+
+			iterator erase(iterator first, iterator last)
+			{
+				for(; first != last; last--)
+					erase(first);
+				return(first);
 			}
     };
 
