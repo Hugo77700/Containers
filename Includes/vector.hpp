@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vector.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+        */
+/*   By: hugoo <hugoo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:17:35 by hcherpre          #+#    #+#             */
-/*   Updated: 2023/01/04 18:09:44 by hcherpre         ###   ########.fr       */
+/*   Updated: 2023/01/05 19:45:26 by hugoo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,13 +94,13 @@ class vector
 		
 	private :
 	
-		_destroy_vector()
+		_destroy_vector(vector& x)
 		{
-			if (!_size)
+			if (!x._size)
 				return ;
-			for(size_t i = 0; i < _size; i++)
-				_alloc.destroy(_begin + i);
-			_alloc.deallocate(_begin, _capacity);
+			for(size_t i = 0; i < x._size; i++)
+				_alloc.destroy(x._begin + i);
+			_alloc.deallocate(x._begin, x._capacity);
 		}
 
 	public :
@@ -194,7 +194,7 @@ class vector
 				erase(_begin + n, end());
 			else
 			{
-				if (n < _capacity)
+				if (n > _capacity)
 				{
 					if (_capacity * 2 > n)
 						reserve(_capacity * 2);
@@ -261,6 +261,57 @@ class vector
 			for(; first != last; last--)
 				erase(first);
 			return(first);
+		}
+
+		void assign (size_type n, const value_type& val)
+		{
+			if (_size)
+				(*this).clear();
+			for (size_t j = 0; j < n; j++)
+				_alloc.construct(_begin + j, val)
+			_size = n;
+		}
+
+		template <class InputIterator>
+		void assign (InputIterator first, InputIterator last)
+		{
+			if(_size)
+				(*this).clear();
+			for (size_t i = 0; first != last; first++, i++)
+				_alloc.construct(_begin + i, *first);
+			_size = std::distance(first, last);
+		}
+
+		void push_back (const value_type& val)
+		{
+			if (_size + 1 >= _capacity)
+			{
+				if (!_capacity)
+					reserve(1);
+				else
+					reserve(_capacity * 2);
+			}
+			_alloc.construct((_begin + _size), val);
+			_size += 1;
+		}
+
+		void pop_back()
+		{
+			_size += 1;
+			_alloc.destroy(_begin + _size);
+		}
+
+		void swap (vector& x)
+		{
+			pointer tmp1 = _alloc.allocate(x._capacity);
+			pointer tmp2 = _alloc.allocate(_capacity);
+			
+			tmp1.assign(x._begin, (x._begin + x._size));
+			tmp2.assign(_begin, (_begin + _size));
+			_destroy_vector(x);
+			_destroy_vector(*this);
+			_begin = tmp1;
+			x._begin = tmp2;
 		}
 };
 
