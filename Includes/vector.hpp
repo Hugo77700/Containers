@@ -6,7 +6,7 @@
 /*   By: hugoo <hugoo@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:17:35 by hcherpre          #+#    #+#             */
-/*   Updated: 2023/01/05 19:45:26 by hugoo            ###   ########.fr       */
+/*   Updated: 2023/01/05 19:58:05 by hugoo            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,15 +303,21 @@ class vector
 
 		void swap (vector& x)
 		{
-			pointer tmp1 = _alloc.allocate(x._capacity);
-			pointer tmp2 = _alloc.allocate(_capacity);
-			
-			tmp1.assign(x._begin, (x._begin + x._size));
-			tmp2.assign(_begin, (_begin + _size));
-			_destroy_vector(x);
-			_destroy_vector(*this);
-			_begin = tmp1;
-			x._begin = tmp2;
+			allocator_type	tmp_alloc = _alloc;
+			size_t 			tmp_capacity = _capacity;
+			pointer			tmp_begin = _begin;
+			size_t			tmp_size = _size;
+
+
+			_alloc = x._alloc;
+			_capacity = x._capacity;
+			_begin = x._begin;
+			_size = x._size;
+
+			x._alloc = tmp_alloc;
+			x._capacity = tmp_capacity;
+			x._begin = tmp_begin;
+			x._size = tmp_size;
 		}
 };
 
