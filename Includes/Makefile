@@ -6,7 +6,7 @@
 #    By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/06 16:59:43 by hcherpre          #+#    #+#              #
-#    Updated: 2023/01/06 16:59:45 by hcherpre         ###   ########.fr        #
+#    Updated: 2023/01/06 17:29:51 by hcherpre         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ CC = c++
 OBJS_PATH = objects/
 OBJS = ${addprefix ${OBJS_PATH}, ${SRCS:.cpp=.o}}
 
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g3
+CFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address -g3
 
 $(NAME_FT): $(OBJS_FT)
 	$(CXX) $(CXXFLAGS) -o $(NAME_FT) $(OBJS_FT) 
