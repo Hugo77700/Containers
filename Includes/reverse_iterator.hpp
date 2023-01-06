@@ -6,7 +6,7 @@
 /*   By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:18:10 by hcherpre          #+#    #+#             */
-/*   Updated: 2022/12/21 17:00:21 by hcherpre         ###   ########.fr       */
+/*   Updated: 2023/01/06 15:25:30 by hcherpre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,23 +18,16 @@
 // # include "ft_containers.hpp"
 # include "iterator_traits.hpp"
 
-NAME_SPACE_START
+namespace ft
+{
 
 template< typename Iterator >
 class reverse_iterator
 {
-	// =============================================================================
-	// ATTRIBUTS ===================================================================
-	// _current (protected)	the underlying iterator of which base() returns a copy
     
 protected:
 	Iterator	_current;
 	typedef reverse_iterator<Iterator> traits_type;
-
-
-	// =============================================================================
-	// TYPEDEF =====================================================================
-	//TODO not sure why no ft::iterator_traits ?
     
 public:
 	typedef Iterator												iterator_type;
@@ -51,11 +44,11 @@ public:
 	{}
 
 	explicit 
-	reverse_iterator(iterator_type it_to_adapt) : _current(it_to_adapt)
+	reverse_iterator(iterator_type it) : _current(it)
 	{}
 
 	template< class U >
-	reverse_iterator(const reverse_iterator<U>& other) : _current(other.base())
+	reverse_iterator(const reverse_iterator<U>& cpy) : _current(cpy.base())
 	{}
 	
 
@@ -198,58 +191,6 @@ operator-(	const reverse_iterator<Iterator1>& lhs,
 	return (rhs.base() - lhs.base());
 }
 
-
-// =============================================================================
-// COMPARES THE UNDERLYING ITERATORS ===========================================
-
-template< class Iterator1, class Iterator2 >
-bool 
-operator==( const reverse_iterator<Iterator1>& lhs,
-            const reverse_iterator<Iterator2>& rhs )
-{
-	return (lhs.base() == rhs.base());
-}
-
-template< class Iterator1, class Iterator2 >
-bool
-operator!=( const ft::reverse_iterator<Iterator1>& lhs,
-            const ft::reverse_iterator<Iterator2>& rhs )
-{
-	return (lhs.base() != rhs.base());
-}
-
-template< class Iterator1, class Iterator2 >
-bool
-operator<(	const ft::reverse_iterator<Iterator1>& lhs,
-			const ft::reverse_iterator<Iterator2>& rhs )
-{
-	return (lhs.base() > rhs.base());
-}
-
-template< class Iterator1, class Iterator2 >
-bool
-operator<=( const ft::reverse_iterator<Iterator1>& lhs,
-            const ft::reverse_iterator<Iterator2>& rhs )
-{
-	return (lhs.base() >= rhs.base());
-}
-
-template< class Iterator1, class Iterator2 >
-bool
-operator>(	const ft::reverse_iterator<Iterator1>& lhs,
-        	const ft::reverse_iterator<Iterator2>& rhs )
-{
-	return (lhs.base() < rhs.base());
-}
-
-template< class Iterator1, class Iterator2 >
-bool
-operator>=( const ft::reverse_iterator<Iterator1>& lhs,
-            const ft::reverse_iterator<Iterator2>& rhs )
-{
-	return (lhs.base() <= rhs.base());
-}
-
 // =============================================================================
 
 template< class Iterator >
@@ -299,6 +240,6 @@ operator>=( const reverse_iterator<Iterator>& lhs,
 {
 	return (lhs.base() <= rhs.base());
 }
+}
 
-NAME_SPACE_END
 #endif

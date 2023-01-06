@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vector.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hugoo <hugoo@student.42.fr>                +#+  +:+       +#+        */
+/*   By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:17:35 by hcherpre          #+#    #+#             */
-/*   Updated: 2023/01/05 19:58:05 by hugoo            ###   ########.fr       */
+/*   Updated: 2023/01/06 17:18:44 by hcherpre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,28 +16,30 @@
 #include <string>
 #include <iostream>
 #include <iterator>
+#include "reverse_iterator.hpp"
+#include "iterator_traits.hpp"
 
 namespace ft
 {
 
-template <typename T, typename Allocator = std::allocator<T>>
+template <typename T, typename Allocator = std::allocator<T> >
 
 class vector
 {
 	public :
 	
-		typedef			T							value_type
-		typedef			size_t						size_type
-		typedef			Allocator					allocator_type
-		typedef			ptrdiff_t 					difference_type
-		typedef			value_type&					reference
-		typedef const	value_type&					const_reference
-		typedef			Allocator::pointer			pointer
-		typedef const	Allocator::const_pointer	const_pointer
-		typedef			T*							iterator
-		typedef const	T*							const_iterator
-		typedef 									reverse_iterator
-		typedef										const_reverse_iterator
+		typedef			T								value_type;
+		typedef			size_t							size_type;
+		typedef			Allocator						allocator_type;
+		typedef			ptrdiff_t 						difference_type;
+		typedef			value_type&						reference;
+		typedef const	value_type&						const_reference;
+		typedef	typename	Allocator::pointer			pointer;
+		typedef typename	Allocator::const_pointer	const_pointer;
+		typedef			T*								iterator;
+		typedef const	T*								const_iterator;
+		typedef ft::reverse_iterator<iterator>			reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator>	const_reverse_iterator;
 
 	private :
 
@@ -75,14 +77,14 @@ class vector
 		
 		~vector()
 		{
-			_destroy_vector();
+			destroy_vector(*this);
 		}
 		
 		vector& operator=(const vector& x)
 		{
-			if (this = &cpy)
+			if (this == &x)
 				return (*this);
-			_destroy_vector();
+			destroy_vector();
 			_alloc = x._alloc;
 			_capacity = x._capacity;
 			_begin = _alloc.allocate(x._capacity);
@@ -94,13 +96,14 @@ class vector
 		
 	private :
 	
-		_destroy_vector(vector& x)
+	void	destroy_vector(vector& x)
 		{
-			if (!x._size)
-				return ;
-			for(size_t i = 0; i < x._size; i++)
-				_alloc.destroy(x._begin + i);
-			_alloc.deallocate(x._begin, x._capacity);
+			if (x._size)
+			{
+				for(size_t i = 0; i < x._size; i++)
+					_alloc.destroy(x._begin + i);
+				_alloc.deallocate(x._begin, x._capacity);
+			}
 		}
 
 	public :
@@ -180,9 +183,9 @@ class vector
 			else if (n > _capacity)
 			{
 				pointer	tmp = _alloc.allocate(n);
-				for(size_t i = 0; i < x._size; i++)
+				for(size_t i = 0; i < _size; i++)
 					_alloc.construct(tmp + i, *(_begin + i));
-				_destroy_vector();
+				destroy_vector(*this);
 				_begin = tmp;
 				_capacity = n;
 			}
@@ -218,8 +221,8 @@ class vector
 		T&	at(size_type n)
 		{
 			if (n >= _size)
-				throw std::exception::out_of_range();
-			return(*(_begin + pos));
+				throw std::out_of_range("vector::at\n");
+			return(*(_begin + n));
 		}
 
 		T&	front()
@@ -268,7 +271,7 @@ class vector
 			if (_size)
 				(*this).clear();
 			for (size_t j = 0; j < n; j++)
-				_alloc.construct(_begin + j, val)
+				_alloc.construct(_begin + j, val);
 			_size = n;
 		}
 
