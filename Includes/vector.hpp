@@ -6,7 +6,7 @@
 /*   By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:17:35 by hcherpre          #+#    #+#             */
-/*   Updated: 2023/01/06 18:03:09 by hcherpre         ###   ########.fr       */
+/*   Updated: 2023/01/09 14:14:00 by hcherpre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,16 +276,16 @@ class vector
 			_size = n;
 		}
 
-		// template <class InputIterator>
-		// void assign (InputIterator first, InputIterator last)
-		// {
-		// 	reserve(std::distance(first, last));
-		// 	if(_capacity)
-		// 		(*this).clear();
-		// 	for (size_t i = 0; first != last; first++, i++)
-		// 		_alloc.construct(_begin + i, *first);
-		// 	_size = std::distance(first, last);
-		// }
+		template <class InputIterator>
+		void assign (InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
+		{
+			reserve(std::distance(first, last));
+			if(_capacity)
+				(*this).clear();
+			for (size_t i = 0; first != last; first++, i++)
+				_alloc.construct(_begin + i, *first);
+			_size = std::distance(first, last);
+		}
 
 		void push_back (const value_type& val)
 		{
