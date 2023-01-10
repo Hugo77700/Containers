@@ -6,18 +6,20 @@
 /*   By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:17:35 by hcherpre          #+#    #+#             */
-/*   Updated: 2023/01/09 14:14:00 by hcherpre         ###   ########.fr       */
+/*   Updated: 2023/01/10 18:06:50 by hcherpre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
+#include <iterator>
 #include <string>
 #include <iostream>
-#include <iterator>
 #include "reverse_iterator.hpp"
 #include "iterator_traits.hpp"
+#include "enable_if.hpp"
+#include "is_integral.hpp"
 
 namespace ft
 {
@@ -51,25 +53,33 @@ class vector
 	public :
 
 		explicit
-		vector (const allocator_type& alloc = allocator_type()) : _alloc(alloc), _capacity(0), _begin(NULL), _size(0)
+		vector (const allocator_type& alloc = allocator_type()) 
+		: _alloc(alloc), _capacity(0), _begin(NULL), _size(0)
 		{};
 		
 		explicit
-		vector (size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()) : _alloc(alloc), _capacity(n), _begin(_alloc.allocate(n)), _size(n)
+		vector (size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()) 
+		: _alloc(alloc), _capacity(n), _begin(_alloc.allocate(n)), _size(n)
 		{
 			for(size_t i = 0; i < n; i++)
 				_alloc.construct(_begin + i, val);
 		};
 		
 		template <class InputIterator>
-		vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) : _alloc(alloc), _capacity(std::distance(first, last)), _begin(_alloc.allocate(std::distance(first, last))), _size(std::distance(first, last))
+		vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) 
+		: _alloc(alloc), _capacity(0), _begin(NULL), _size(0)
 		{
+			size_t dist = std::distance(first, last);
+			_capacity = dist;
+			_begin = _alloc.allocate(dist);
+			_size = dist;
 			for(size_t i = 0; first != last; first++, i++)
 				_alloc.construct(_begin + i, *first);
 				
 		}
 		
-		vector (const vector& x) : _alloc(x._alloc), _capacity(x._capacity), _begin(_alloc.allocate(x._capacity)), _size(x._size)
+		vector (const vector& x) 
+		: _alloc(x._alloc), _capacity(x._capacity), _begin(_alloc.allocate(x._capacity)), _size(x._size)
 		{
 			for(size_t i = 0; i < x._size; i++)
 				_alloc.construct(_begin + i, *(x._begin + i));
@@ -85,9 +95,8 @@ class vector
 			if (this == &x)
 				return (*this);
 			destroy_vector();
-			_alloc = x._alloc;
 			_capacity = x._capacity;
-			_begin = _alloc.allocate(x._capacity);
+			_begin = _alloc.allocate(_capacity);
 			_size = x._size;
 			for(size_t i = 0; i < x._size; i++)
 				_alloc.construct(_begin + i, *(x._begin + i));
@@ -98,7 +107,7 @@ class vector
 	
 	void	destroy_vector()
 		{
-			if (_size)
+			if (_capacity)
 			{
 				for(size_t i = 0; i < _size; i++)
 					_alloc.destroy(_begin + i);
@@ -178,17 +187,17 @@ class vector
 
 		void reserve(size_type n)
 		{
-			if (n > _alloc.max_size())
+			if (n < _capacity)
+				return ;
+			else if (n > _alloc.max_size())
 				throw std::length_error("vector::reserve");
-			else if (n > _capacity)
-			{
-				pointer	tmp = _alloc.allocate(n);
-				for(size_t i = 0; i < _size; i++)
-					_alloc.construct(tmp + i, *(_begin + i));
-				destroy_vector();
-				_begin = tmp;
-				_capacity = n;
-			}
+
+			pointer	tmp = _alloc.allocate(n);
+			for(size_t i = 0; i < _size; i++)
+				_alloc.construct(tmp + i, *(_begin + i));
+			destroy_vector();
+			_begin = tmp;
+			_capacity = n;
 		}
 		
 		void resize(size_type n, value_type val = value_type())
@@ -240,10 +249,11 @@ class vector
 
 		void	clear()
 		{
-			if (_size == 0)
+			if (_capacity == 0)
 				return ;
 			for(size_t i = 0; i < _size; i++)
 				_alloc.destroy(_begin + i);
+			_size = 0;
 		}
 
 		iterator erase(iterator position)
@@ -279,17 +289,18 @@ class vector
 		template <class InputIterator>
 		void assign (InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
 		{
-			reserve(std::distance(first, last));
+			size_t dist = std::distance(first, last);
+			reserve(dist);
 			if(_capacity)
 				(*this).clear();
 			for (size_t i = 0; first != last; first++, i++)
 				_alloc.construct(_begin + i, *first);
-			_size = std::distance(first, last);
+			_size = dist;
 		}
 
 		void push_back (const value_type& val)
 		{
-			if (_size + 1 >= _capacity)
+			if (_size >= _capacity)
 			{
 				if (_capacity == 0)
 					reserve(1);
@@ -302,7 +313,7 @@ class vector
 
 		void pop_back()
 		{
-			_size += 1;
+			_size -= 1;
 			_alloc.destroy(_begin + _size);
 		}
 
