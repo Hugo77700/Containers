@@ -6,7 +6,7 @@
 /*   By: hcherpre <hcherpre@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/12 13:17:35 by hcherpre          #+#    #+#             */
-/*   Updated: 2023/01/10 18:06:50 by hcherpre         ###   ########.fr       */
+/*   Updated: 2023/01/11 18:00:21 by hcherpre         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,16 +66,11 @@ class vector
 		};
 		
 		template <class InputIterator>
-		vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()) 
-		: _alloc(alloc), _capacity(0), _begin(NULL), _size(0)
+		vector (InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last, const allocator_type& alloc = allocator_type()) 
+		: _alloc(alloc), _capacity(std::distance(first, last)), _begin(_alloc.allocate(std::distance(first, last))), _size(std::distance(first, last))
 		{
-			size_t dist = std::distance(first, last);
-			_capacity = dist;
-			_begin = _alloc.allocate(dist);
-			_size = dist;
 			for(size_t i = 0; first != last; first++, i++)
 				_alloc.construct(_begin + i, *first);
-				
 		}
 		
 		vector (const vector& x) 
@@ -335,6 +330,42 @@ class vector
 			x._begin = tmp_begin;
 			x._size = tmp_size;
 		}
+
+		iterator insert (iterator position, const value_type& val)
+		{
+			size_t pos = std::distance(begin(), position);
+			int x = 1;
+			if (_capacity == 0)
+				reserve (1);
+			else if (_size >= _capacity)
+				reserve (_capacity * 2);
+			for (size_t i = _size; i > pos; i--, x++)
+			{
+				_alloc.construct(begin() + i, *(end() - x));
+				_alloc.destroy(end() - x);
+			}
+			_alloc.construct(begin() + pos, val);
+			_size += 1;
+			return (begin() + pos);
+		}
+
+		 void insert(iterator position, size_type n, const value_type& val)
+		 {
+			if (n == 0)
+				return ;
+			iterator it = position;
+			for(size_t i = 0; i < n; i++)
+				it = insert(it, val);
+		 }
+
+		 template <class InputIterator>
+		 void insert (iterator position, InputIterator first, typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
+		 {
+			iterator it = position;
+			for(; first != last; first++)
+				it = (insert(it, *first)) + 1;
+		 }
+
 };
 
 }
